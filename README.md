@@ -1,4 +1,4 @@
-A simple Flask web for converting currencies, units, and calculating age.
+A simple python based web for converting currencies, units, and calculating age.
 
 Project Structure:
 app.py - Main Backend
