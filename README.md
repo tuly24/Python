@@ -5,14 +5,14 @@ app.py - Main Backend
 index.html - Frontend template
 style.css - Optional styling
 
-Features
+Features:
 Currency conversion, Age calculator and many other unit conversion like length, weight, speed, area, volume, time conversion etc. 
 
 Technologies Used:
 Python(Flask)
 HTML and CSS
 
-Supported Conversions
+Supported Conversions:
 Currencies: USD, EUR, GBP, JPY, INR, AUD, CAD, CHF, CNY and many more.
 
 Units:
