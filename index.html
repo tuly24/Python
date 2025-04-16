@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Unit Converter</title>
+    <meta
+      name="description"
+      content="Accurately convert a wide range of units across scientific and everyday categories."
+    />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Fredoka+One&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="header">
+        <div class="logo">
+          <i class="fas fa-calculator"></i>
+          <h1><span>Unit</span> Converter</h1>
+        </div>
+        <p>
+          Accurately convert a wide range of units across scientific and
+          everyday categories
+        </p>
+      </div>
+
+      <div class="converter-container" id="converterContainer">
+        <div class="category-selector">
+          <div class="selector-box">
+            <label for="category"
+              ><i class="fas fa-list-alt"></i> Category:</label
+            >
+            <select id="category" name="category">
+              {% for category in categories %}
+              <option value="{{ category }}">{{ category }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <div class="conversion-box" id="standardConversion">
+          <div class="input-section">
+            <div class="input-group">
+              <input
+                type="number"
+                id="value"
+                placeholder="Enter value"
+                step="any"
+                autofocus
+              />
+              <select id="from_unit" name="from_unit"></select>
+            </div>
+          </div>
+
+          <div class="swap-btn">
+            <button id="swap-units" title="Swap units">
+              <i class="fas fa-exchange-alt"></i>
+            </button>
+          </div>
+
+          <div class="output-section">
+            <div class="output-group">
+              <input type="text" id="result" placeholder="Result" readonly />
+              <select id="to_unit" name="to_unit"></select>
+            </div>
+          </div>
+        </div>
+
+        <div class="conversion-box" id="ageConversion" style="display: none">
+          <div class="input-section">
+            <div class="input-group">
+              <input
+                type="date"
+                id="birthDate"
+                class="date-input"
+                placeholder="Enter birth date"
+              />
+              <button id="calculateAge">Calculate Age</button>
+            </div>
+          </div>
+          <div class="output-section">
+            <div class="output-group">
+              <div id="ageResult" class="age-result"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="category-sections" id="info-grid"></div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        const container = document.getElementById("info-grid");
+        const converterContainer = $("#converterContainer");
+        const standardConversion = $("#standardConversion");
+        const ageConversion = $("#ageConversion");
+
+        converterContainer.hide();
+
+        const unitCategories = {
+          General: [
+            {
+              name: "Length",
+              icon: "fas fa-ruler",
+              color: "#6c5ce7",
+              desc: "Convert between various distance units",
+            },
+            {
+              name: "Area",
+              icon: "fas fa-draw-polygon",
+              color: "#fdcb6e",
+              desc: "Easily switch between different area measurements",
+            },
+            {
+              name: "Volume",
+              icon: "fas fa-cube",
+              color: "#e17055",
+              desc: "Convert various volume units for liquids and solids",
+            },
+            {
+              name: "Time",
+              icon: "fas fa-stopwatch",
+              color: "#fd79a8",
+              desc: "Quickly convert between time units",
+            },
+            {
+              name: "Speed",
+              icon: "fas fa-tachometer-alt",
+              color: "#0984e3",
+              desc: "Convert speed units across different systems",
+            },
+            {
+              name: "Weight",
+              icon: "fas fa-weight-hanging",
+              color: "#00b894",
+              desc: "Switch between different weight measurements",
+            },
+          ],
+          "Special Converters": [
+            {
+              name: "Age Calculator",
+              icon: "fas fa-birthday-cake",
+              color: "#d63031",
+              desc: "Calculate your age from your birth date",
+            },
+            {
+              name: "Currency",
+              icon: "fas fa-money-bill-wave",
+              color: "#00b894",
+              desc: "Convert between different currencies",
+            },
+          ],
+          Physics: [
+            {
+              name: "Temperature",
+              icon: "fas fa-thermometer-half",
+              color: "#d63031",
+              desc: "Convert between various temperature scales",
+            },
+            {
+              name: "Pressure",
+              icon: "fas fa-compress-arrows-alt",
+              color: "#a29bfe",
+              desc: "Convert between different pressure measurements",
+            },
+            {
+              name: "Force",
+              icon: "fas fa-bolt",
+              color: "#6c5ce7",
+              desc: "Calculate force units based on different standards",
+            },
+            {
+              name: "Power",
+              icon: "fas fa-plug",
+              color: "#fd79a8",
+              desc: "Easily Switch power units for different types of energy",
+            },
+            {
+              name: "Energy",
+              icon: "fas fa-fire",
+              color: "#00b894",
+              desc: "Convert between various energy units",
+            },
+            {
+              name: "Torque",
+              icon: "fas fa-sync-alt",
+              color: "#a29bfe",
+              desc: "Switch torque measurements used in various applications",
+            },
+            {
+              name: "Angular Velocity",
+              icon: "fas fa-sync",
+              color: "#e17055",
+              desc: "Convert angular velocity units",
+            },
+            {
+              name: "Radiation",
+              icon: "fas fa-radiation",
+              color: "#00b894",
+              desc: "Convert radiation measurement units",
+            },
+            {
+              name: "Frequency",
+              icon: "fas fa-wave-square",
+              color: "#fdcb6e",
+              desc: "Convert between different frequency units",
+            },
+          ],
+          Electricity: [
+            {
+              name: "Electric Charge",
+              icon: "fas fa-battery-full",
+              color: "#d63031",
+              desc: "Convert electric charge between different units",
+            },
+            {
+              name: "Electric Potential",
+              icon: "fas fa-bolt",
+              color: "#a29bfe",
+              desc: "Switch between different electric potential units",
+            },
+            {
+              name: "Electric Resistance",
+              icon: "fas fa-bolt",
+              color: "#6c5ce7",
+              desc: "Convert electrical resistance between various units",
+            },
+          ],
+          "Light & Sound": [
+            {
+              name: "Illuminance",
+              icon: "fas fa-lightbulb",
+              color: "#6c5ce7",
+              desc: "Convert between lighting measurement units",
+            },
+            {
+              name: "Luminous Flux",
+              icon: "fas fa-lightbulb",
+              color: "#0984e3",
+              desc: "Switch between different luminous flux units",
+            },
+            {
+              name: "Sound",
+              icon: "fas fa-volume-up",
+              color: "#fdcb6e",
+              desc: "Convert sound intensity levels",
+            },
+          ],
+          Other: [
+            {
+              name: "Fuel Efficiency",
+              icon: "fas fa-gas-pump",
+              color: "#d63031",
+              desc: "Compare fuel efficiency units used in different systems",
+            },
+            {
+              name: "Angle",
+              icon: "fas fa-circle-notch",
+              color: "#e17055",
+              desc: "Convert between angle measurement units",
+            },
+            {
+              name: "Data Storage",
+              icon: "fas fa-database",
+              color: "#0984e3",
+              desc: "Convert between data storage units",
+            },
+            {
+              name: "Magnetic Field",
+              icon: "fas fa-magnet",
+              color: "#fd79a8",
+              desc: "Convert between magnetic field strength units",
+            },
+          ],
+        };
+
+        for (const [group, items] of Object.entries(unitCategories)) {
+          const section = document.createElement("div");
+          section.className = "category-section";
+
+          const sectionTitle = document.createElement("h2");
+          sectionTitle.className = "category-title";
+          sectionTitle.textContent = group;
+          section.appendChild(sectionTitle);
+
+          const grid = document.createElement("div");
+          grid.className = "info-grid";
+
+          items.forEach((item) => {
+            const card = document.createElement("div");
+            card.className = "info-card";
+            card.style.setProperty("--card-color", item.color);
+            card.innerHTML = `
+                        <i class="${item.icon}"></i>
+                        <h3>${item.name}</h3>
+                        <p>${item.desc}</p>
+                    `;
+
+            card.addEventListener("click", () => {
+              
+              window.scrollTo({
+                top: 0,
+                behavior: "smooth",
+              });
+
+              $("#category").val(item.name);
+              loadUnits(item.name);
+              converterContainer.show();
+
+              if (item.name === "Age Calculator") {
+                standardConversion.hide();
+                ageConversion.show();
+              } else {
+                standardConversion.show();
+                ageConversion.hide();
+              }
+            });
+
+            grid.appendChild(card);
+          });
+
+          section.appendChild(grid);
+          container.appendChild(section);
+        }
+
+
+        function loadUnits(category) {
+          if (category === "Age Calculator") return;
+
+          $.getJSON("/get_units/" + category, function (data) {
+            const units = data.units;
+            $("#from_unit").empty();
+            $("#to_unit").empty();
+
+            units.forEach(function (unit) {
+              $("#from_unit").append(
+                $("<option>", {
+                  value: unit,
+                  text: unit,
+                })
+              );
+
+              $("#to_unit").append(
+                $("<option>", {
+                  value: unit,
+                  text: unit,
+                })
+              );
+            });
+
+            if (units.length > 1) {
+              $("#to_unit").val(units[1]);
+            }
+
+            convertUnits();
+          });
+        }
+
+        function convertUnits() {
+          const category = $("#category").val();
+          const value = $("#value").val();
+          const fromUnit = $("#from_unit").val();
+          const toUnit = $("#to_unit").val();
+
+          if (value === "") {
+            $("#result").val("");
+            return;
+          }
+
+          $.ajax({
+            url: "/convert",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({
+              category: category,
+              value: value,
+              from_unit: fromUnit,
+              to_unit: toUnit,
+            }),
+            success: function (data) {
+              $("#result").val(data.result);
+            },
+            error: function () {
+              $("#result").val("Error");
+            },
+          });
+        }
+
+      
+        $("#calculateAge").click(function () {
+          const birthDate = $("#birthDate").val();
+          if (!birthDate) {
+            $("#ageResult").text("Please select a date");
+            return;
+          }
+
+          $.ajax({
+            url: "/convert",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({
+              category: "Age Calculator",
+              value: birthDate,
+              from_unit: "",
+              to_unit: "",
+            }),
+            success: function (data) {
+              $("#ageResult").text(data.result);
+            },
+            error: function () {
+              $("#ageResult").text("Error calculating age");
+            },
+          });
+        });
+
+      
+        $("#category").change(function () {
+          if ($(this).val() === "Age Calculator") {
+            standardConversion.hide();
+            ageConversion.show();
+          } else {
+            standardConversion.show();
+            ageConversion.hide();
+            loadUnits($(this).val());
+          }
+        });
+
+        $("#swap-units").click(function () {
+          const fromUnit = $("#from_unit").val();
+          const toUnit = $("#to_unit").val();
+          $("#from_unit").val(toUnit);
+          $("#to_unit").val(fromUnit);
+          convertUnits();
+          $(this).addClass("clicked");
+          setTimeout(() => $(this).removeClass("clicked"), 300);
+        });
+
+        $("#value, #from_unit, #to_unit").on("input change", function () {
+          convertUnits();
+        });
+      });
+    </script>
+  </body>
+</html>
